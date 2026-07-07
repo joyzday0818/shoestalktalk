@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>슈즈톡톡 | 전공과 운동화 세탁 실습</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --ink: #191d23;
+    --ink-soft: #767c88;
+    --ink-faint: #a3a8b2;
+    --line: #e7e8ec;
+    --primary: #12474f;
+    --primary-soft: #e4eeee;
+    --teal: #0e7c86;
+    --teal-soft: #e1f1f2;
+    --accent: #d4633a;
+    --accent-soft: #fbe9e1;
+    --success: #2f8f5b;
+    --success-soft: #e4f4ea;
+    --danger: #c1503f;
+    --shadow: 0 1px 2px rgba(20,24,30,0.04), 0 8px 20px rgba(20,24,30,0.05);
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--bg);
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .display{ font-family: 'Manrope', 'Noto Sans KR', sans-serif; font-weight:800; letter-spacing:-0.02em; }
+
+  /* ---------- Header ---------- */
+  header{
+    padding: 30px clamp(20px,4vw,52px) 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    flex-wrap:wrap;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .brand{ display:flex; align-items:center; gap:14px; }
+  .brand-mark{
+    width:46px; height:46px; border-radius:12px;
+    background: var(--primary);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .brand-mark svg{ width:24px; height:24px; }
+  .brand h1{
+    margin:0; font-size: 21px;
+    color: var(--ink);
+  }
+  .brand h1 .dot{ color:var(--accent); }
+  .brand p{ margin:3px 0 0; color:var(--ink-soft); font-size:12.5px; font-weight:500; letter-spacing:0.01em; }
+  .sync-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:11px !important; color: var(--success) !important; font-weight:700 !important;
+    margin-top:6px !important; letter-spacing:0.02em;
+  }
+  .sync-badge::before{
+    content:''; width:6px; height:6px; border-radius:50%; background: var(--success);
+    display:inline-block;
+  }
+  .sync-badge.err{ color: var(--danger) !important; }
+  .sync-badge.err::before{ background: var(--danger); }
+  .newbtn{
+    background: var(--primary);
+    color:#fff;
+    border:none; border-radius:10px;
+    padding:13px 22px;
+    font-family:'Noto Sans KR', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    transition: background .15s ease;
+  }
+  .newbtn:hover{ background: #0d3439; }
+
+  /* ---------- Stats ---------- */
+  .stats{
+    display:flex; gap:1px; flex-wrap:wrap;
+    padding: clamp(16px,3vw,28px) clamp(20px,4vw,52px) 8px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+  }
+  .stat{
+    flex:1; min-width:130px;
+    padding:0 22px 20px;
+    border-right: 1px solid var(--line);
+  }
+  .stat:last-child{ border-right:none; }
+  .stat b{ display:block; font-size:28px; font-family:'Manrope',sans-serif; font-weight:800; color: var(--ink); letter-spacing:-0.02em; }
+  .stat span{ font-size:12px; color:var(--ink-soft); font-weight:600; }
+  .stat.accent b{ color: var(--accent); }
+  .stat.mint b{ color: var(--success); }
+
+  /* ---------- Board ---------- */
+  .board{
+    display:grid;
+    grid-template-columns: repeat(5, minmax(230px,1fr));
+    gap:16px;
+    padding: 22px clamp(20px,4vw,52px) 20px;
+    overflow-x:auto;
+  }
+  @media (max-width: 980px){
+    .board{ grid-template-columns: 1fr; }
+  }
+  .col{
+    background: transparent;
+    border-radius:12px;
+    padding:0;
+    min-height:200px;
+  }
+  .col-head{
+    display:flex; align-items:center; gap:9px;
+    margin-bottom:14px; padding: 0 2px;
+  }
+  .col-head .idx{
+    width:20px; height:20px; border-radius:6px;
+    background: var(--surface); border:1px solid var(--line);
+    font-size:10.5px; font-weight:800; font-family:'Manrope',sans-serif;
+    color: var(--ink-faint);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .col-head h3{ margin:0; font-size:13.5px; font-weight:700; letter-spacing:0.01em; color: var(--ink); }
+  .col-head .count{
+    margin-left:auto; color:var(--ink-faint);
+    font-size:12px; font-weight:700; font-family:'Manrope',sans-serif;
+  }
+  .empty-hint{
+    text-align:center; color:var(--ink-faint); font-size:12.5px;
+    padding: 34px 10px; border:1px dashed var(--line); border-radius:12px;
+  }
+
+  /* ---------- Card ---------- */
+  .card{
+    background: var(--surface);
+    border-radius:12px;
+    border:1px solid var(--line);
+    padding:16px 16px 14px;
+    box-shadow: var(--shadow);
+    margin-bottom:12px;
+    animation: rise .2s ease;
+  }
+  @keyframes rise{ from{ transform: translateY(4px); opacity:0;} to{ transform: translateY(0); opacity:1;} }
+  .card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:6px;}
+  .card-name{ font-weight:700; font-size:14.5px; color: var(--ink); }
+  .card-meta{ color:var(--ink-soft); font-size:12px; margin-top:2px; font-weight:500; }
+  .pairs-badge{
+    background: var(--teal-soft); color: var(--teal);
+    font-weight:700; font-size:11.5px; border-radius:6px; padding:3px 8px;
+    white-space:nowrap; font-family:'Manrope',sans-serif;
+  }
+  .del-x{
+    background:none; border:none; color:var(--ink-faint); font-size:15px; cursor:pointer;
+    padding:0 2px; line-height:1;
+  }
+  .del-x:hover{ color: var(--danger); }
+
+  /* progress tracker */
+  .track{ display:flex; align-items:center; gap:3px; margin:12px 0 10px; }
+  .track .step{
+    flex:1; height:4px; border-radius:3px; background: var(--line);
+  }
+  .track .step.on{ background: var(--teal); }
+  .track .step.current{ background: var(--accent); }
+
+  .photos{ display:flex; gap:6px; margin: 8px 0; flex-wrap:wrap; }
+  .photos img{
+    width:48px; height:48px; object-fit:cover; border-radius:8px;
+    border:1px solid var(--line);
+  }
+  .photo-label{ font-size:10.5px; color:var(--ink-soft); font-weight:700; margin-bottom:3px; }
+
+  .upload-row{
+    display:flex; align-items:center; justify-content:space-between; gap:8px; margin:10px 0;
+    background: var(--bg); border-radius:8px; padding:9px 10px;
+    border:1px solid var(--line);
+  }
+  .upload-row label{
+    font-size:12px; font-weight:700; color: var(--teal);
+    cursor:pointer; white-space:nowrap;
+  }
+  .upload-row input[type=file]{ display:none; }
+  .upload-row .hint{ font-size:11px; color:var(--ink-faint); font-weight:600; }
+
+  .advance-btn{
+    width:100%; margin-top:8px;
+    background: var(--ink); color:#fff; border:none;
+    border-radius:8px; padding:10px; font-weight:700; font-size:13px;
+    cursor:pointer; font-family:'Noto Sans KR',sans-serif;
+    transition: background .15s ease;
+  }
+  .advance-btn:hover{ background: #000; }
+  .advance-btn:disabled{ background:#dfe1e6; color:#a3a8b2; cursor:not-allowed; }
+  .advance-btn.done{ background: var(--success-soft); color: var(--success); }
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    position:fixed; inset:0; background: rgba(20,24,30,0.5);
+    display:none; align-items:center; justify-content:center; z-index:50;
+    padding:16px;
+  }
+  .overlay.show{ display:flex; }
+  .modal{
+    background:#fff; border-radius:16px; padding:28px; width:100%; max-width:400px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+  }
+  .modal h2{ margin:0 0 4px; font-size:18px; font-weight:700; color: var(--ink); }
+  .modal .sub{ color:var(--ink-soft); font-size:13px; margin-bottom:20px; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; }
+  .field input{
+    width:100%; padding:11px 13px; border-radius:8px; border:1px solid var(--line);
+    font-size:14.5px; font-family:'Noto Sans KR',sans-serif;
+    background: var(--bg);
+  }
+  .field input:focus{ outline:none; border-color: var(--teal); background:#fff; }
+  .modal-actions{ display:flex; gap:8px; margin-top:20px; }
+  .modal-actions button{
+    flex:1; padding:12px; border-radius:8px; border:none; font-weight:700; cursor:pointer; font-size:14px;
+  }
+  .btn-cancel{ background: var(--bg); color: var(--ink-soft); }
+  .btn-cancel:hover{ background: var(--line); }
+  .btn-submit{ background: var(--ink); color:#fff; }
+  .btn-submit:hover{ background: #000; }
+
+  footer{
+    text-align:center; color: var(--ink-faint); font-size:12px;
+    padding: 18px 0 34px; font-weight:500;
+  }
+
+  /* ---------- Views / tabs ---------- */
+  .view{ display:none; padding-bottom: 100px; }
+  .view.active{ display:block; }
+
+  /* ---------- Home hero ---------- */
+  .hero{
+    margin: clamp(16px,3vw,28px) clamp(20px,4vw,52px) 0;
+    border-radius:20px;
+    padding: 30px 26px 26px;
+    background: linear-gradient(135deg, #eaf6f4 0%, #dcf0ee 100%);
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    position:relative; overflow:hidden;
+  }
+  .hero-text h2{
+    margin:0 0 6px; font-size: clamp(21px,4.4vw,26px); line-height:1.32;
+    color: var(--primary); font-weight:800; letter-spacing:-0.01em;
+  }
+  .hero-text p{ margin:0; color:#3f7772; font-size: clamp(11px,3vw,13px); font-weight:600; white-space:nowrap; }
+  .hero-illust{ flex-shrink:0; opacity:0.95; }
+
+  .highlight-banner{
+    margin: 14px clamp(20px,4vw,52px) 0;
+    background: var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:14px 16px; display:flex; align-items:center; gap:12px;
+    box-shadow: var(--shadow);
+  }
+  .highlight-banner .ic{
+    width:38px; height:38px; border-radius:10px; background: var(--accent-soft);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .highlight-banner .txt{ font-size:13.5px; color: var(--ink); font-weight:600; }
+  .highlight-banner .txt b{ color: var(--accent); }
+  .highlight-banner .tag{
+    margin-left:auto; background: var(--teal-soft); color: var(--teal);
+    font-size:11px; font-weight:800; border-radius:999px; padding:4px 10px;
+    white-space:nowrap; font-family:'Manrope',sans-serif;
+  }
+
+  /* quick menu grid */
+  .quickmenu{
+    display:grid; grid-template-columns: repeat(4,1fr); gap:10px;
+    margin: 22px clamp(20px,4vw,52px) 0;
+  }
+  .qm-item{ background:none; border:none; cursor:pointer; font-family:'Noto Sans KR',sans-serif; }
+  .qm-icon{
+    width:100%; aspect-ratio:1; border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:8px;
+  }
+  .qm-icon svg{ width:22px; height:22px; }
+  .qm-label{ font-size:12px; font-weight:700; color: var(--ink); }
+
+  .home-section-title{
+    margin: 30px clamp(20px,4vw,52px) 12px; display:flex; align-items:center; justify-content:space-between;
+  }
+  .home-section-title span.tag{ color: var(--ink-faint); font-size:12px; font-weight:600; }
+  .home-section-title h3{ margin:2px 0 0; font-size:17px; font-weight:800; }
+
+  .recent-list{ padding: 0 clamp(20px,4vw,52px); display:flex; flex-direction:column; gap:10px; }
+  .recent-item{
+    background: var(--surface); border:1px solid var(--line); border-radius:12px;
+    padding:12px 14px; display:flex; align-items:center; gap:12px;
+    box-shadow: var(--shadow);
+  }
+  .recent-item .ridx{
+    width:34px; height:34px; border-radius:10px; background: var(--teal-soft);
+    color: var(--teal); font-weight:800; font-size:12px; font-family:'Manrope',sans-serif;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .recent-item .rname{ font-weight:700; font-size:13.5px; }
+  .recent-item .rmeta{ color: var(--ink-soft); font-size:11.5px; font-weight:500; margin-top:1px; }
+  .recent-item .rstage{
+    margin-left:auto; font-size:11px; font-weight:700; color: var(--ink-soft);
+    background: var(--bg); border-radius:999px; padding:4px 10px; white-space:nowrap;
+  }
+  .empty-simple{ text-align:center; color: var(--ink-faint); font-size:13px; padding: 30px 0; }
+
+  /* ---------- History (completed) ---------- */
+  .history-wrap{ padding: 18px clamp(20px,4vw,52px) 0; display:flex; flex-direction:column; gap:12px; }
+  .history-card{
+    background: var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:14px; box-shadow: var(--shadow);
+  }
+  .history-top{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+  .history-name{ font-weight:700; font-size:14.5px; }
+  .history-meta{ color: var(--ink-soft); font-size:12px; margin-top:2px; }
+  .history-photos{ display:flex; gap:8px; }
+  .history-photos .ph{ flex:1; }
+  .history-photos img{ width:100%; height:110px; object-fit:cover; border-radius:10px; border:1px solid var(--line); }
+  .history-photos .cap{ font-size:10.5px; color: var(--ink-faint); font-weight:700; margin-top:4px; text-align:center; }
+
+  /* ---------- Info tab ---------- */
+  .info-wrap{ padding: 18px clamp(20px,4vw,52px) 0; }
+  .info-card{
+    background: var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:20px; box-shadow: var(--shadow); margin-bottom:14px;
+  }
+  .info-card h3{ margin:0 0 12px; font-size:15px; font-weight:800; }
+  .info-step{ display:flex; gap:12px; padding:10px 0; border-top:1px solid var(--line); }
+  .info-step:first-of-type{ border-top:none; }
+  .info-step .num{
+    width:24px; height:24px; border-radius:7px; background: var(--teal-soft); color: var(--teal);
+    font-weight:800; font-size:12px; font-family:'Manrope',sans-serif;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .info-step .txt{ font-size:13px; color: var(--ink); line-height:1.5; }
+  .info-step .txt b{ display:block; font-size:13.5px; margin-bottom:2px; }
+
+  /* ---------- Bottom tab bar ---------- */
+  .tabbar{
+    position:fixed; left:0; right:0; bottom:0; z-index:40;
+    background: var(--surface); border-top:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-around;
+    padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+  }
+  .tab-btn{
+    background:none; border:none; cursor:pointer; font-family:'Noto Sans KR',sans-serif;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:6px 4px; color: var(--ink-faint); flex:1;
+  }
+  .tab-btn svg{ width:22px; height:22px; }
+  .tab-btn span{ font-size:10.5px; font-weight:700; }
+  .tab-btn.active{ color: var(--teal); }
+  .tab-fab-wrap{ flex:1; display:flex; justify-content:center; }
+  .tab-fab{
+    width:54px; height:54px; border-radius:50%; margin-top:-30px;
+    background: linear-gradient(135deg, var(--teal), #0a5a62);
+    border:4px solid var(--surface);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; box-shadow: 0 8px 18px rgba(14,124,134,0.35);
+    color:#fff;
+  }
+  .tab-fab svg{ width:22px; height:22px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 15.5C3 14 4 13 5.5 13c1 0 1.6.3 2.4.8.9.6 2 .9 3.6.7 1.8-.2 2.7-1 3.9-2 1.3-1.1 2.6-1.5 4.1-.8 1.2.6 1.5 1.7 1.5 2.8v3.3H3v-4.3z" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/>
+        <path d="M5.5 13V9.2c0-.7.5-1.2 1.2-1.4l4-.9c.6-.1 1.2.1 1.6.6l1.8 2" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <h1 class="display">슈즈톡톡<span class="dot">.</span></h1>
+      <p id="sync-badge" class="sync-badge">실시간 동기화 중</p>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 홈 ===== -->
+<div class="view active" id="view-home">
+
+  <div class="hero">
+    <div class="hero-text">
+      <h2>모두의 발걸음에<br>상쾌함을 톡톡</h2>
+      <p>홀트학교 전공과 운동화 세탁 실습</p>
+    </div>
+    <div class="hero-illust">
+      <svg width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="44" cy="44" r="44" fill="#ffffff" fill-opacity="0.5"/>
+        <path d="M20 54c0-4 3-6 7-6 3 0 4.6.8 6.8 2 2.4 1.6 5.4 2.3 9.6 1.8 4.6-.5 7-2.5 10-5 3.3-2.8 6.6-3.8 10.4-2 3 1.5 3.8 4.2 3.8 7v7.8H20v-5.6z" stroke="#0e7c86" stroke-width="2.2" stroke-linejoin="round"/>
+        <path d="M27 48V37.5c0-1.8 1.2-3.2 3-3.6l10-2.2c1.5-.3 3 .2 4 1.4l4.4 5" stroke="#0e7c86" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="63" cy="22" r="4" fill="#d4633a" fill-opacity="0.85"/>
+        <circle cx="70" cy="32" r="2.4" fill="#0e7c86" fill-opacity="0.7"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="highlight-banner" id="highlight-banner"></div>
+
+  <div class="quickmenu">
+    <button class="qm-item" onclick="openModal()">
+      <div class="qm-icon" style="background: var(--accent-soft);">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#d4633a" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="qm-label">신청하기</div>
+    </button>
+    <button class="qm-item" onclick="switchTab('board')">
+      <div class="qm-icon" style="background: var(--teal-soft);">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="6" height="16" rx="1.5" stroke="#0e7c86" stroke-width="2"/><rect x="14" y="4" width="6" height="9" rx="1.5" stroke="#0e7c86" stroke-width="2"/></svg>
+      </div>
+      <div class="qm-label">진행현황</div>
+    </button>
+    <button class="qm-item" onclick="switchTab('history')">
+      <div class="qm-icon" style="background: var(--success-soft);">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#2f8f5b" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="qm-label">완료내역</div>
+    </button>
+    <button class="qm-item" onclick="switchTab('info')">
+      <div class="qm-icon" style="background: var(--primary-soft);">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#12474f" stroke-width="2"/><path d="M12 11v5M12 8v.3" stroke="#12474f" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="qm-label">이용안내</div>
+    </button>
+  </div>
+
+  <div class="home-section-title">
+    <div>
+      <span class="tag">최근 접수</span>
+      <h3>최근 신청 현황</h3>
+    </div>
+  </div>
+  <div class="recent-list" id="recent-list"></div>
+</div>
+
+<!-- ===== 현황판 ===== -->
+<div class="view" id="view-board">
+  <div class="stats" id="stats"></div>
+  <div class="board" id="board"></div>
+</div>
+
+<!-- ===== 완료내역 ===== -->
+<div class="view" id="view-history">
+  <div class="home-section-title" style="margin-top:20px;">
+    <div>
+      <span class="tag">세탁 &amp; 배송 완료</span>
+      <h3>완료된 세탁 내역</h3>
+    </div>
+  </div>
+  <div class="history-wrap" id="history-wrap"></div>
+</div>
+
+<!-- ===== 이용안내 ===== -->
+<div class="view" id="view-info">
+  <div class="info-wrap">
+    <div class="info-card">
+      <h3>슈즈톡톡 이용 순서</h3>
+      <div class="info-step">
+        <div class="num">1</div>
+        <div class="txt"><b>세탁 신청</b>이름, 소속, 켤레 수를 입력해 신청서를 접수해요.</div>
+      </div>
+      <div class="info-step">
+        <div class="num">2</div>
+        <div class="txt"><b>세탁 전 사진 등록</b>세탁을 시작하기 전 신발 상태 사진을 올려요.</div>
+      </div>
+      <div class="info-step">
+        <div class="num">3</div>
+        <div class="txt"><b>세탁 후 사진 등록</b>세탁이 끝나면 완료된 사진을 올려요.</div>
+      </div>
+      <div class="info-step">
+        <div class="num">4</div>
+        <div class="txt"><b>배송</b>세탁이 끝난 신발을 배송하고, 완료 처리해요.</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <h3>슈즈톡톡 소개</h3>
+      <div class="info-step" style="border-top:none;">
+        <div class="txt" style="font-size:13px; line-height:1.7;">
+          슈즈톡톡은 전공과 운동화 세탁 실습 수업에서 사용하는 주문관리 앱이에요.<br>
+          모든 기기에서 실시간으로 같은 신청 목록을 공유하니, 학생들이 각자 폰으로 접속해 진행 상황을 확인하고 업데이트할 수 있어요.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>전공과 운동화 세탁 실습 수업 · 슈즈톡톡 주문관리</footer>
+
+<!-- ===== Bottom tab bar ===== -->
+<nav class="tabbar">
+  <button class="tab-btn active" id="tabbtn-home" onclick="switchTab('home')">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9h12v-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>홈</span>
+  </button>
+  <button class="tab-btn" id="tabbtn-board" onclick="switchTab('board')">
+    <svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="4" width="6" height="16" rx="1.4" stroke="currentColor" stroke-width="2"/><rect x="14.5" y="4" width="6" height="9" rx="1.4" stroke="currentColor" stroke-width="2"/></svg>
+    <span>현황판</span>
+  </button>
+  <div class="tab-fab-wrap">
+    <button class="tab-fab" onclick="openModal()">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <button class="tab-btn" id="tabbtn-history" onclick="switchTab('history')">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>완료내역</span>
+  </button>
+  <button class="tab-btn" id="tabbtn-info" onclick="switchTab('info')">
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/><path d="M12 11v5M12 8v.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <span>안내</span>
+  </button>
+</nav>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>세탁 신청서</h2>
+    <div class="sub">정보를 입력하고 접수 목록에 올려주세요.</div>
+    <div class="field">
+      <label>신청자 이름</label>
+      <input type="text" id="in-name" placeholder="예: 김민준">
+    </div>
+    <div class="field">
+      <label>소속</label>
+      <input type="text" id="in-org" placeholder="예: 전공과 1반">
+    </div>
+    <div class="field">
+      <label>켤레 수</label>
+      <input type="number" id="in-pairs" min="1" value="1">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-submit" onclick="submitOrder()">접수하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STAGES = [
+  { key:'requested',  label:'세탁 신청 접수' },
+  { key:'washing',    label:'세탁 중' },
+  { key:'washed',     label:'세탁 완료' },
+  { key:'delivering', label:'배송 중' },
+  { key:'delivered',  label:'배송 완료' },
+];
+
+let orders = [];
+let seq = 1;
+let syncing = false;
+const STORE_KEY = 'shoetoktok:orders';
+const SEQ_KEY = 'shoetoktok:seq';
+
+async function loadOrders(){
+  try{
+    const res = await window.storage.get(STORE_KEY, true);
+    orders = res ? JSON.parse(res.value) : [];
+  }catch(e){
+    orders = [];
+  }
+  try{
+    const seqRes = await window.storage.get(SEQ_KEY, true);
+    seq = seqRes ? JSON.parse(seqRes.value) : 1;
+  }catch(e){
+    seq = 1;
+  }
+}
+
+async function saveOrders(){
+  try{
+    await window.storage.set(STORE_KEY, JSON.stringify(orders), true);
+    await window.storage.set(SEQ_KEY, JSON.stringify(seq), true);
+    clearSyncError();
+  }catch(e){
+    console.error('저장 실패', e);
+    showSyncError();
+  }
+}
+
+function showSyncError(){
+  const el = document.getElementById('sync-badge');
+  if(el){
+    el.textContent = '동기화 오류 - 다시 시도 중';
+    el.classList.add('err');
+  }
+}
+function clearSyncError(){
+  const el = document.getElementById('sync-badge');
+  if(el){
+    el.textContent = '실시간 동기화 중';
+    el.classList.remove('err');
+  }
+}
+
+async function refreshFromServer(){
+  if(syncing) return;
+  syncing = true;
+  const before = JSON.stringify(orders);
+  await loadOrders();
+  if(JSON.stringify(orders) !== before){
+    render();
+  }
+  syncing = false;
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('tabbtn-' + tab);
+  if(btn) btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function renderHome(){
+  const banner = document.getElementById('highlight-banner');
+  if(orders.length === 0){
+    banner.innerHTML = `<div class="txt">아직 접수된 세탁 신청이 없어요. 첫 신청을 받아볼까요?</div>`;
+  } else {
+    const totals = {};
+    orders.forEach(o => { totals[o.name] = (totals[o.name] || 0) + o.pairs; });
+    const [topName, topPairs] = Object.entries(totals).sort((a,b) => b[1]-a[1])[0];
+    banner.innerHTML = `
+      <div class="ic">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4L12 2z" fill="#d4633a"/></svg>
+      </div>
+      <div class="txt"><b>${topName}</b>님이 총 <b>${topPairs}켤레</b>를 맡겼어요!</div>
+      <div class="tag">TOP 1</div>
+    `;
+  }
+
+  const list = document.getElementById('recent-list');
+  const recent = orders.slice(0,5);
+  list.innerHTML = recent.length ? recent.map((o,i) => `
+    <div class="recent-item">
+      <div class="ridx">${String(i+1).padStart(2,'0')}</div>
+      <div>
+        <div class="rname">${o.name}</div>
+        <div class="rmeta">${o.org} · ${o.pairs}켤레</div>
+      </div>
+      <div class="rstage">${STAGES[o.stage].label}</div>
+    </div>
+  `).join('') : `<div class="empty-simple">아직 신청 내역이 없어요.</div>`;
+}
+
+function renderHistory(){
+  const wrap = document.getElementById('history-wrap');
+  const done = orders.filter(o => o.stage === 4);
+  wrap.innerHTML = done.length ? done.map(o => `
+    <div class="history-card">
+      <div class="history-top">
+        <div>
+          <div class="history-name">${o.name}</div>
+          <div class="history-meta">${o.org} · ${o.pairs}켤레</div>
+        </div>
+        <span class="pairs-badge">배송완료</span>
+      </div>
+      <div class="history-photos">
+        <div class="ph">${o.beforePhoto ? `<img src="${o.beforePhoto}">` : ''}<div class="cap">세탁 전</div></div>
+        <div class="ph">${o.afterPhoto ? `<img src="${o.afterPhoto}">` : ''}<div class="cap">세탁 후</div></div>
+      </div>
+    </div>
+  `).join('') : `<div class="empty-simple">아직 완료된 세탁이 없어요.</div>`;
+}
+
+function openModal(){
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('in-name').focus();
+}
+function closeModal(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('in-name').value = '';
+  document.getElementById('in-org').value = '';
+  document.getElementById('in-pairs').value = 1;
+}
+async function submitOrder(){
+  const name = document.getElementById('in-name').value.trim();
+  const org = document.getElementById('in-org').value.trim();
+  const pairs = parseInt(document.getElementById('in-pairs').value) || 1;
+  if(!name || !org){
+    alert('이름과 소속을 입력해주세요.');
+    return;
+  }
+  await loadOrders();
+  orders.unshift({
+    id: seq++,
+    name, org, pairs,
+    stage: 0,
+    beforePhoto: null,
+    afterPhoto: null,
+    createdAt: new Date().toISOString()
+  });
+  await saveOrders();
+  closeModal();
+  render();
+}
+
+async function deleteOrder(id){
+  if(!confirm('이 신청을 삭제할까요?')) return;
+  await loadOrders();
+  orders = orders.filter(o => o.id !== id);
+  await saveOrders();
+  render();
+}
+
+async function handlePhoto(id, type, input){
+  const file = input.files[0];
+  if(!file) return;
+  const dataUrl = await compressImage(file);
+  await loadOrders();
+  const order = orders.find(o => o.id === id);
+  if(!order) return;
+  if(type === 'before') order.beforePhoto = dataUrl;
+  else order.afterPhoto = dataUrl;
+  await saveOrders();
+  render();
+}
+
+function compressImage(file, maxDim = 700, quality = 0.65){
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if(width > height && width > maxDim){
+          height = Math.round(height * (maxDim / width));
+          width = maxDim;
+        } else if(height > maxDim){
+          width = Math.round(width * (maxDim / height));
+          height = maxDim;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => resolve(e.target.result);
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function advance(id){
+  await loadOrders();
+  const order = orders.find(o => o.id === id);
+  if(!order) return;
+  if(order.stage === 1 && !order.beforePhoto){
+    alert('세탁 전 사진을 먼저 올려주세요.');
+    return;
+  }
+  if(order.stage === 2 && !order.afterPhoto){
+    alert('세탁 후 사진을 먼저 올려주세요.');
+    return;
+  }
+  if(order.stage < STAGES.length - 1) order.stage++;
+  await saveOrders();
+  render();
+}
+
+function trackerHTML(order){
+  return STAGES.map((s, i) => {
+    let cls = 'step';
+    if(i < order.stage) cls += ' on';
+    else if(i === order.stage) cls += ' current';
+    return `<div class="${cls}" title="${s.label}"></div>`;
+  }).join('');
+}
+
+function cardHTML(order){
+  const stage = order.stage;
+  let mid = '';
+
+  if(stage === 0){
+    mid = `<button class="advance-btn" onclick="advance(${order.id})">세탁 시작</button>`;
+  } else if(stage === 1){
+    mid = `
+      <div class="upload-row">
+        <label>세탁 전 사진 첨부
+          <input type="file" accept="image/*" capture="environment" onchange="handlePhoto(${order.id},'before',this)">
+        </label>
+        <span class="hint">${order.beforePhoto ? '완료' : '필수'}</span>
+      </div>
+      ${order.beforePhoto ? `<div class="photos"><img src="${order.beforePhoto}"></div>` : ''}
+      <button class="advance-btn" ${!order.beforePhoto ? 'disabled' : ''} onclick="advance(${order.id})">세탁 완료 처리</button>
+    `;
+  } else if(stage === 2){
+    mid = `
+      <div class="upload-row">
+        <label>세탁 후 사진 첨부
+          <input type="file" accept="image/*" capture="environment" onchange="handlePhoto(${order.id},'after',this)">
+        </label>
+        <span class="hint">${order.afterPhoto ? '완료' : '필수'}</span>
+      </div>
+      <div class="photos">
+        ${order.beforePhoto ? `<img src="${order.beforePhoto}">` : ''}
+        ${order.afterPhoto ? `<img src="${order.afterPhoto}">` : ''}
+      </div>
+      <button class="advance-btn" ${!order.afterPhoto ? 'disabled' : ''} onclick="advance(${order.id})">배송 시작</button>
+    `;
+  } else if(stage === 3){
+    mid = `
+      <div class="photos">
+        ${order.beforePhoto ? `<img src="${order.beforePhoto}">` : ''}
+        ${order.afterPhoto ? `<img src="${order.afterPhoto}">` : ''}
+      </div>
+      <button class="advance-btn" onclick="advance(${order.id})">배송 완료 처리</button>
+    `;
+  } else {
+    mid = `
+      <div class="photos">
+        ${order.beforePhoto ? `<img src="${order.beforePhoto}">` : ''}
+        ${order.afterPhoto ? `<img src="${order.afterPhoto}">` : ''}
+      </div>
+      <button class="advance-btn done" disabled>배송 완료</button>
+    `;
+  }
+
+  return `
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <div class="card-name">${order.name}</div>
+          <div class="card-meta">${order.org}</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="pairs-badge">${order.pairs}켤레</span>
+          <button class="del-x" onclick="deleteOrder(${order.id})">✕</button>
+        </div>
+      </div>
+      <div class="track">${trackerHTML(order)}</div>
+      ${mid}
+    </div>
+  `;
+}
+
+function render(){
+  const board = document.getElementById('board');
+  board.innerHTML = STAGES.map((s, i) => {
+    const list = orders.filter(o => o.stage === i);
+    return `
+      <div class="col">
+        <div class="col-head">
+          <span class="idx">${String(i+1).padStart(2,'0')}</span>
+          <h3>${s.label}</h3>
+          <span class="count">${list.length}</span>
+        </div>
+        ${list.length ? list.map(cardHTML).join('') : `<div class="empty-hint">아직 없어요</div>`}
+      </div>
+    `;
+  }).join('');
+
+  const total = orders.length;
+  const totalPairs = orders.reduce((sum,o)=>sum+o.pairs,0);
+  const inProgress = orders.filter(o => o.stage > 0 && o.stage < 4).length;
+  const done = orders.filter(o => o.stage === 4).length;
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><b>${total}</b><span>총 신청 건수</span></div>
+    <div class="stat"><b>${totalPairs}</b><span>총 신청 켤레수</span></div>
+    <div class="stat accent"><b>${inProgress}</b><span>진행중</span></div>
+    <div class="stat mint"><b>${done}</b><span>배송 완료</span></div>
+  `;
+
+  renderHome();
+  renderHistory();
+}
+async function init(){
+  document.getElementById('board').innerHTML = `<div class="empty-hint" style="grid-column:1/-1; padding:60px;">불러오는 중...</div>`;
+  await loadOrders();
+  render();
+  setInterval(refreshFromServer, 4000);
+}
+init();</script>
+
+</body>
+</html>
