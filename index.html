@@ -562,10 +562,12 @@ const STAGES = [
 let orders = [];
 let seq = 1;
 let syncing = false;
+let lastMutationAt = 0;
 const STORE_KEY = 'shoetoktok:orders';
 const SEQ_KEY = 'shoetoktok:seq';
 
-async function loadOrders(){
+// Used only once at startup — safe to start empty if nothing has ever been saved.
+async function loadInitial(){
   try{
     const res = await window.storage.get(STORE_KEY, true);
     orders = res ? JSON.parse(res.value) : [];
@@ -580,14 +582,31 @@ async function loadOrders(){
   }
 }
 
+// Used for polling and pre-mutation refresh — NEVER clears local data on failure,
+// so a temporary storage error can't wipe out requests that were just added.
+async function pullServerState(){
+  try{
+    const res = await window.storage.get(STORE_KEY, true);
+    orders = res ? JSON.parse(res.value) : orders;
+    clearSyncError();
+    return true;
+  }catch(e){
+    showSyncError();
+    return false;
+  }
+}
+
 async function saveOrders(){
   try{
     await window.storage.set(STORE_KEY, JSON.stringify(orders), true);
     await window.storage.set(SEQ_KEY, JSON.stringify(seq), true);
     clearSyncError();
+    lastMutationAt = Date.now();
+    return true;
   }catch(e){
     console.error('저장 실패', e);
     showSyncError();
+    return false;
   }
 }
 
@@ -608,10 +627,12 @@ function clearSyncError(){
 
 async function refreshFromServer(){
   if(syncing) return;
+  // avoid clobbering a change that just happened locally and may not have propagated yet
+  if(Date.now() - lastMutationAt < 3000) return;
   syncing = true;
   const before = JSON.stringify(orders);
-  await loadOrders();
-  if(JSON.stringify(orders) !== before){
+  const ok = await pullServerState();
+  if(ok && JSON.stringify(orders) !== before){
     render();
   }
   syncing = false;
@@ -695,7 +716,7 @@ async function submitOrder(){
     alert('이름과 소속을 입력해주세요.');
     return;
   }
-  await loadOrders();
+  await pullServerState();
   orders.unshift({
     id: seq++,
     name, org, pairs,
@@ -711,7 +732,7 @@ async function submitOrder(){
 
 async function deleteOrder(id){
   if(!confirm('이 신청을 삭제할까요?')) return;
-  await loadOrders();
+  await pullServerState();
   orders = orders.filter(o => o.id !== id);
   await saveOrders();
   render();
@@ -721,7 +742,7 @@ async function handlePhoto(id, type, input){
   const file = input.files[0];
   if(!file) return;
   const dataUrl = await compressImage(file);
-  await loadOrders();
+  await pullServerState();
   const order = orders.find(o => o.id === id);
   if(!order) return;
   if(type === 'before') order.beforePhoto = dataUrl;
@@ -757,7 +778,7 @@ function compressImage(file, maxDim = 700, quality = 0.65){
 }
 
 async function advance(id){
-  await loadOrders();
+  await pullServerState();
   const order = orders.find(o => o.id === id);
   if(!order) return;
   if(order.stage === 1 && !order.beforePhoto){
@@ -882,7 +903,7 @@ function render(){
 }
 async function init(){
   document.getElementById('board').innerHTML = `<div class="empty-hint" style="grid-column:1/-1; padding:60px;">불러오는 중...</div>`;
-  await loadOrders();
+  await loadInitial();
   render();
   setInterval(refreshFromServer, 4000);
 }
